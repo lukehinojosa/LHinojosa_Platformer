@@ -12,5 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8a9c49459f83de4e84d31384f3af0ff, type: 3}
   m_Name: New Player Settings
   m_EditorClassIdentifier: 
-  _moveSpeed: 20
+  _moveSpeed: 10
   _jumpSpeed: 10
+  _raycastDistance: 0.4

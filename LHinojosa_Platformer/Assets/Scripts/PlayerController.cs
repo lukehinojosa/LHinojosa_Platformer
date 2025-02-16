@@ -21,6 +21,8 @@ public class PlayerController : MonoBehaviour
     
     private Camera _mainCamera;
 
+    private Animator _animator;
+
     void Start()
     {
         _rB = GetComponent<Rigidbody2D>();
@@ -30,21 +32,34 @@ public class PlayerController : MonoBehaviour
         _btmLocalRayPos = new Vector2(0f, _bounds.center.y - _bounds.extents.y);
         _topLocalRayPos = new Vector2(0f, _bounds.extents.y + Mathf.Abs(_col.offset.y));
         _mainCamera = Camera.main;
+        _animator = GetComponentInChildren<Animator>();
     }
 
     void Update()
     {
         _xInput = Input.GetAxis("Horizontal");
         _yInput = Input.GetAxis("Vertical");
+        
+        _animator.SetBool("TryMoving", true);
+        if (_xInput < 0)
+            _sR.flipX = true;
+        else if (_xInput > 0)
+            _sR.flipX = false;
+        else
+            _animator.SetBool("TryMoving", false);
 
         if (_isGrounded)
         {
-            if ((!_gravityUp && _rB.velocity.y <= 0) || (_gravityUp && _rB.velocity.y >= 0))
+            //Jump Input
+            if ((!_gravityUp && _rB.velocity.y <= 0f) || (_gravityUp && _rB.velocity.y >= 0f))
             {
                 if (!_isJumpPressed && _yInput > 0)
+                {
                     _isJumpPressed = true;
+                }
             }
-
+            
+            //Flips Gravity related stuff. Doesn't really jump.
             if (Input.GetButtonDown("Jump"))
             {
                 _gravityUp = !_gravityUp;
@@ -52,6 +67,11 @@ public class PlayerController : MonoBehaviour
                 _col.offset = new Vector2(0, _col.offset.y * -1);
             }
         }
+        
+        if ((!_gravityUp && _rB.velocity.y > 0.1f) || (_gravityUp && _rB.velocity.y < -0.1f))
+            _animator.SetBool("Jumping", true);
+        else if ((!_gravityUp && _rB.velocity.y < 0.1f) || (_gravityUp && _rB.velocity.y > -0.1f))
+            _animator.SetBool("Jumping", false);
     }
     
     void FixedUpdate()
