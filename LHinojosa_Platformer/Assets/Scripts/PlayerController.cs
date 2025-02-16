@@ -33,8 +33,14 @@ public class PlayerController : MonoBehaviour
     {
         _xInput = Input.GetAxis("Horizontal");
 
-        if (_isGrounded && Input.GetButtonDown("Jump"))
-            _isJumpPressed = true;
+        if (_isGrounded)
+        {
+            if (Input.GetButtonDown("Jump"))
+                _isJumpPressed = true;
+            
+            if (Input.GetKeyDown(KeyCode.LeftShift))
+                _gravityUp = !_gravityUp;
+        }
     }
     
     void FixedUpdate()
@@ -46,6 +52,8 @@ public class PlayerController : MonoBehaviour
         RaycastHit2D hit;
         if (_gravityUp)
         {
+            _rB.gravityScale = -Mathf.Abs(_rB.gravityScale);
+            
             hit = Physics2D.Raycast((Vector2)transform.position + _topLocalRayPos, Vector2.up, 0.5f,
                 LayerMask.GetMask("Ground"));
             
@@ -53,6 +61,8 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            _rB.gravityScale = Mathf.Abs(_rB.gravityScale);
+            
             hit = Physics2D.Raycast((Vector2)transform.position + _btmLocalRayPos, Vector2.down, 0.5f,
                 LayerMask.GetMask("Ground"));
             
@@ -67,7 +77,11 @@ public class PlayerController : MonoBehaviour
         if (_isGrounded && _isJumpPressed)
         {
             _isJumpPressed = false;
-            _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
+            
+            if (_gravityUp)
+                _rB.velocity = new Vector2(_rB.velocity.x, -_ps._jumpSpeed);
+            else
+                _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
         }
     }
 }
