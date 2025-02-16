@@ -3,9 +3,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
-    float _moveSpeed = 20f;
-    float _jumpSpeed = 10f;
-
+    public PlayerSettings _ps;
+    
     private Rigidbody2D _rB;
     private CapsuleCollider2D _col;
     private Bounds _bounds;
@@ -41,7 +40,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         //LeftRight
-        _rB.velocity = new Vector2(_xInput * _moveSpeed, _rB.velocity.y);
+        _rB.velocity = new Vector2(_xInput * _ps._moveSpeed, _rB.velocity.y);
         
         //Jump
         RaycastHit2D hit;
@@ -68,7 +67,7 @@ public class PlayerController : MonoBehaviour
         if (_isGrounded && _isJumpPressed)
         {
             _isJumpPressed = false;
-            _rB.velocity = new Vector2(_rB.velocity.x, _jumpSpeed);
+            _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
         }
     }
 }
