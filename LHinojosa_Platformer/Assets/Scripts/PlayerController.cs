@@ -46,7 +46,8 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         //LeftRight
-        _rB.velocity = new Vector2(_xInput * _ps._moveSpeed, _rB.velocity.y);
+        _rB.velocity = new Vector2(0, _rB.velocity.y);
+        _rB.AddForce(Vector2.right * (_xInput * _ps._moveSpeed), ForceMode2D.Impulse);
         
         //Jump
         RaycastHit2D hit;
