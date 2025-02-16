@@ -6,9 +6,11 @@ public class PlayerController : MonoBehaviour
     public PlayerSettings _ps;
     
     private Rigidbody2D _rB;
+    private SpriteRenderer _sR;
     private CapsuleCollider2D _col;
     private Bounds _bounds;
     private float _xInput;
+    private float _yInput;
     private bool _isJumpPressed;
     private bool _isGrounded;
 
@@ -22,24 +24,33 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         _rB = GetComponent<Rigidbody2D>();
+        _sR = GetComponentInChildren<SpriteRenderer>();
         _col = GetComponent<CapsuleCollider2D>();
         _bounds = _col.bounds;
         _btmLocalRayPos = new Vector2(0f, _bounds.center.y - _bounds.extents.y);
-        _topLocalRayPos = new Vector2(0f, _bounds.center.y + _bounds.extents.y);
+        _topLocalRayPos = new Vector2(0f, _bounds.extents.y + Mathf.Abs(_col.offset.y));
         _mainCamera = Camera.main;
     }
 
     void Update()
     {
         _xInput = Input.GetAxis("Horizontal");
+        _yInput = Input.GetAxis("Vertical");
 
         if (_isGrounded)
         {
+            if ((!_gravityUp && _rB.velocity.y <= 0) || (_gravityUp && _rB.velocity.y >= 0))
+            {
+                if (!_isJumpPressed && _yInput > 0)
+                    _isJumpPressed = true;
+            }
+
             if (Input.GetButtonDown("Jump"))
-                _isJumpPressed = true;
-            
-            if (Input.GetKeyDown(KeyCode.LeftShift))
+            {
                 _gravityUp = !_gravityUp;
+                _sR.flipY = _gravityUp;
+                _col.offset = new Vector2(0, _col.offset.y * -1);
+            }
         }
     }
     
@@ -55,19 +66,19 @@ public class PlayerController : MonoBehaviour
         {
             _rB.gravityScale = -Mathf.Abs(_rB.gravityScale);
             
-            hit = Physics2D.Raycast((Vector2)transform.position + _topLocalRayPos, Vector2.up, 0.5f,
+            hit = Physics2D.Raycast((Vector2)transform.position + _topLocalRayPos, Vector2.up, _ps._raycastDistance,
                 LayerMask.GetMask("Ground"));
             
-            Debug.DrawRay((Vector2)transform.position + _topLocalRayPos, Vector2.up * 0.5f, Color.red);
+            Debug.DrawRay((Vector2)transform.position + _topLocalRayPos, Vector2.up * _ps._raycastDistance, Color.red);
         }
         else
         {
             _rB.gravityScale = Mathf.Abs(_rB.gravityScale);
             
-            hit = Physics2D.Raycast((Vector2)transform.position + _btmLocalRayPos, Vector2.down, 0.5f,
+            hit = Physics2D.Raycast((Vector2)transform.position + _btmLocalRayPos, Vector2.down, _ps._raycastDistance,
                 LayerMask.GetMask("Ground"));
             
-            Debug.DrawRay((Vector2)transform.position + _btmLocalRayPos, Vector2.down * 0.5f, Color.red);
+            Debug.DrawRay((Vector2)transform.position + _btmLocalRayPos, Vector2.down * _ps._raycastDistance, Color.red);
         }
         
         if (hit.collider != null)
