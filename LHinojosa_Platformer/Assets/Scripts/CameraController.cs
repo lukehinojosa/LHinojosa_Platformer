@@ -12,7 +12,7 @@ public class CameraController : MonoBehaviour
     public Transform _endX;
     private float _xDestination;
 
-    public bool _move = true;
+    public bool _move;
 
     void Start()
     {
