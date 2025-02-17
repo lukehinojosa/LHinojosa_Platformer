@@ -1,4 +1,5 @@
 using TMPro;
+using UnityEngine.UI;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -7,6 +8,8 @@ public class GameManager : MonoBehaviour
     private CameraController _cc;
     
     public TextMeshProUGUI _timerText;
+    public Image _moveKeys;
+    public Image _gravityFlipKey;
 
     void Start()
     {
@@ -32,6 +35,10 @@ public class GameManager : MonoBehaviour
         }
 
         if (_countDown < -1f)
+        {
             _timerText.text = "";
+            _moveKeys.enabled = false;
+            _gravityFlipKey.enabled = false;
+        }
     }
 }
