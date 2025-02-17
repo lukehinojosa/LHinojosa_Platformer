@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
             //Jump Input
             if ((!_gravityUp && _rB.velocity.y <= 0f) || (_gravityUp && _rB.velocity.y >= 0f))
             {
-                if (!_isJumpPressed && _yInput > 0)
+                if (!_isJumpPressed && _yInput > 0f)
                 {
                     _isJumpPressed = true;
                 }

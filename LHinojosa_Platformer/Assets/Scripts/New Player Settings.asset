@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: New Player Settings
   m_EditorClassIdentifier: 
   _moveSpeed: 10
-  _jumpSpeed: 10
+  _jumpSpeed: 20
   _raycastDistance: 0.4
