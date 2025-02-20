@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraController : MonoBehaviour
 {
@@ -13,12 +14,15 @@ public class CameraController : MonoBehaviour
     private float _xDestination;
 
     public bool _move;
+    
+    public Slider _progressSlider;
 
     void Start()
     {
         _x1 = transform.position.x;
         _x2 = _x1 + _moveSpeed;
         _xDestination = _endX.position.x;
+        _progressSlider.maxValue = _endX.transform.position.x;
     }
 
     void FixedUpdate()
@@ -28,6 +32,13 @@ public class CameraController : MonoBehaviour
             transform.position = new Vector3(Mathf.Lerp(_x1, _x2, Time.deltaTime), transform.position.y, transform.position.z);
             _x1 = transform.position.x;
             _x2 = _x1 + _moveSpeed;
+
+            UpdateProgressSlider();
         }
+    }
+
+    void UpdateProgressSlider()
+    {
+        _progressSlider.value = transform.position.x;
     }
 }
