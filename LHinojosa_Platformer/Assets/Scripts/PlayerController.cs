@@ -7,12 +7,13 @@ public class PlayerController : MonoBehaviour
     
     private Rigidbody2D _rB;
     private SpriteRenderer _sR;
-    private CapsuleCollider2D _col;
+    private BoxCollider2D _col;
     private Bounds _bounds;
     private float _xInput;
     private float _yInput;
     private bool _isJumpPressed;
     private bool _isGrounded;
+    public float _addVelocity;
 
     private Vector2 _btmLocalRayPos;
     private Vector2 _topLocalRayPos;
@@ -27,7 +28,7 @@ public class PlayerController : MonoBehaviour
     {
         _rB = GetComponent<Rigidbody2D>();
         _sR = GetComponentInChildren<SpriteRenderer>();
-        _col = GetComponent<CapsuleCollider2D>();
+        _col = GetComponent<BoxCollider2D>();
         _bounds = _col.bounds;
         _btmLocalRayPos = new Vector2(0f, _bounds.center.y - _bounds.extents.y);
         _topLocalRayPos = new Vector2(0f, _bounds.extents.y + Mathf.Abs(_col.offset.y));
@@ -77,7 +78,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         //LeftRight
-        _rB.velocity = new Vector2(0, _rB.velocity.y);
+        _rB.velocity = new Vector2(_addVelocity, _rB.velocity.y);//Reset Velocity
         _rB.AddForce(Vector2.right * (_xInput * _ps._moveSpeed), ForceMode2D.Impulse);
         
         //Jump
