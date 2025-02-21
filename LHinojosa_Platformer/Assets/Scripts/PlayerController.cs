@@ -15,9 +15,6 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     public float _addVelocity;
 
-    private Vector2 _btmLocalRayPos;
-    private Vector2 _topLocalRayPos;
-
     private bool _gravityUp;
     
     private Camera _mainCamera;
@@ -29,9 +26,6 @@ public class PlayerController : MonoBehaviour
         _rB = GetComponent<Rigidbody2D>();
         _sR = GetComponentInChildren<SpriteRenderer>();
         _col = GetComponent<BoxCollider2D>();
-        _bounds = _col.bounds;
-        _btmLocalRayPos = new Vector2(0f, _bounds.center.y - _bounds.extents.y);
-        _topLocalRayPos = new Vector2(0f, _bounds.extents.y + Mathf.Abs(_col.offset.y));
         _mainCamera = Camera.main;
         _animator = GetComponentInChildren<Animator>();
     }
@@ -87,19 +81,23 @@ public class PlayerController : MonoBehaviour
         {
             _rB.gravityScale = -Mathf.Abs(_rB.gravityScale);
             
-            hit = Physics2D.Raycast((Vector2)transform.position + _topLocalRayPos, Vector2.up, _ps._raycastDistance,
+            Vector2 topLocalRayPos = new Vector2(transform.position.x, _col.bounds.max.y);
+            
+            hit = Physics2D.Raycast(topLocalRayPos, Vector2.up, _ps._raycastDistance,
                 LayerMask.GetMask("Ground"));
             
-            Debug.DrawRay((Vector2)transform.position + _topLocalRayPos, Vector2.up * _ps._raycastDistance, Color.red);
+            Debug.DrawRay(topLocalRayPos, Vector2.up * _ps._raycastDistance, Color.red);
         }
         else
         {
             _rB.gravityScale = Mathf.Abs(_rB.gravityScale);
             
-            hit = Physics2D.Raycast((Vector2)transform.position + _btmLocalRayPos, Vector2.down, _ps._raycastDistance,
+            Vector2 btmLocalRayPos = new Vector2(transform.position.x, _col.bounds.min.y);
+            
+            hit = Physics2D.Raycast(btmLocalRayPos, Vector2.down, _ps._raycastDistance,
                 LayerMask.GetMask("Ground"));
             
-            Debug.DrawRay((Vector2)transform.position + _btmLocalRayPos, Vector2.down * _ps._raycastDistance, Color.red);
+            Debug.DrawRay(btmLocalRayPos, Vector2.down * _ps._raycastDistance, Color.red);
         }
         
         if (hit.collider != null)
