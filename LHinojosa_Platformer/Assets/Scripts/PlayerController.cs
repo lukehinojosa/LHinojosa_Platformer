@@ -11,12 +11,15 @@ public class PlayerController : MonoBehaviour
     private BoxCollider2D _col;
     private Bounds _bounds;
     private float _xInput;
-    private float _yInput;
     private bool _isJumpPressed;
     private bool _isGrounded;
     public float _addVelocity;
+    private bool _jumpAvailable;
     private bool _jumpBuffer;
-    private float _jumpBufferTimer = 0.1f;
+    private float _jumpBufferTimer = 0.0f;
+    private float _coyoteTime = 0.1f;
+    private bool _coyoteCoroutineRunning;
+    private float _initialGravity;
 
     private bool _gravityUp;
     
@@ -31,12 +34,12 @@ public class PlayerController : MonoBehaviour
         _col = GetComponent<BoxCollider2D>();
         _mainCamera = Camera.main;
         _animator = GetComponentInChildren<Animator>();
+        _initialGravity = _rB.gravityScale;
     }
 
     void Update()
     {
         _xInput = Input.GetAxis("Horizontal");
-        _yInput = Input.GetAxis("Vertical");
         
         _animator.SetBool("TryMoving", true);
         if (_xInput < 0)
@@ -45,24 +48,23 @@ public class PlayerController : MonoBehaviour
             _sR.flipX = false;
         else
             _animator.SetBool("TryMoving", false);
+        
+        //Jump Input
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+            _isJumpPressed = true;
 
         if (_isGrounded)
         {
-            //Jump Input
-            if ((!_gravityUp && _rB.velocity.y <= 0f) || (_gravityUp && _rB.velocity.y >= 0f))
-            {
-                if (!_isJumpPressed && _yInput > 0f)
-                {
-                    _isJumpPressed = true;
-                }
-            }
-            
-            //Flips Gravity related stuff. Doesn't really jump.
-            if (Input.GetButtonDown("Jump"))
+            //Flips Gravity related stuff.
+            if (Input.GetKeyDown(KeyCode.Space))
             {
                 _gravityUp = !_gravityUp;
                 _sR.flipY = _gravityUp;
                 _col.offset = new Vector2(0, _col.offset.y * -1);
+                
+                StopCoroutine(CoyoteTimer());
+                _coyoteCoroutineRunning = false;
+                _jumpAvailable = false;
             }
         }
         
@@ -78,7 +80,7 @@ public class PlayerController : MonoBehaviour
         _rB.velocity = new Vector2(_addVelocity, _rB.velocity.y);//Reset Velocity
         _rB.AddForce(Vector2.right * (_xInput * _ps._moveSpeed), ForceMode2D.Impulse);
 
-        bool _jumpAvailable = IsJumpAvailable();
+        IsJumpAvailable();
         
         if (_isJumpPressed)
         {
@@ -92,13 +94,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    bool IsJumpAvailable()
+    void IsJumpAvailable()
     {
         RaycastHit2D hit;
         if (_gravityUp)
         {
-            _rB.gravityScale = -Mathf.Abs(_rB.gravityScale);
-            
             Vector2 topLocalRayPos = new Vector2(transform.position.x, _col.bounds.max.y + 0.01f);
             
             hit = Physics2D.Raycast(topLocalRayPos, Vector2.up, _ps._raycastDistance,
@@ -108,8 +108,6 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _rB.gravityScale = Mathf.Abs(_rB.gravityScale);
-            
             Vector2 btmLocalRayPos = new Vector2(transform.position.x, _col.bounds.min.y - 0.01f);
             
             hit = Physics2D.Raycast(btmLocalRayPos, Vector2.down, _ps._raycastDistance,
@@ -124,17 +122,35 @@ public class PlayerController : MonoBehaviour
             _isGrounded = false;
 
         if (!_isGrounded)
-            return false;
+        {
+            if (_jumpAvailable)
+            {
+                _rB.gravityScale = 0f;
+                
+                if (!_coyoteCoroutineRunning)
+                    StartCoroutine(CoyoteTimer());
+            }
+            else
+            {
+                //Do Gravity
+                if (_gravityUp)
+                    _rB.gravityScale = -_initialGravity;
+                else
+                    _rB.gravityScale = _initialGravity;
+            }
+        }
         else
         {
-            //Coyote time?
+            StopCoroutine(CoyoteTimer());
+            _coyoteCoroutineRunning = false;
+            
+            _jumpAvailable = true;
+            
             if (_jumpBuffer)
             {
                 Jump();
                 _jumpBuffer = false;
             }
-
-            return true;
         }
     }
 
@@ -146,6 +162,15 @@ public class PlayerController : MonoBehaviour
             _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
 
         _isJumpPressed = false;
+        _jumpAvailable = false;
+    }
+    
+    private IEnumerator CoyoteTimer()
+    {
+        _coyoteCoroutineRunning = true;
+        yield return new WaitForSeconds(_coyoteTime);
+        _jumpAvailable = false;
+        _coyoteCoroutineRunning = false;
     }
 
     private IEnumerator JumpBufferTimer()
