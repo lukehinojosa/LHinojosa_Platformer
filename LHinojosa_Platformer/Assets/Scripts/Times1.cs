@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Times2 : MonoBehaviour
+public class Times1 : MonoBehaviour
 {
     private bool _triggered;
     private void OnTriggerEnter2D(Collider2D other)
@@ -11,7 +11,11 @@ public class Times2 : MonoBehaviour
         {
             _triggered = true;
             
-            Instantiate(other.gameObject, other.transform.position, other.transform.rotation);
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            for (int i = 0; i < players.Length; i++)
+                if (players[i] != other.gameObject)
+                    Destroy(players[i]);
+            
             Destroy(gameObject);
         }
     }

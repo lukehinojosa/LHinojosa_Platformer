@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
     private bool _doFlipGravity;
 
     private bool _gravityUp;
+
+    public bool GetGravityUp()
+    {return _gravityUp;}
     
     private Camera _mainCamera;
 
