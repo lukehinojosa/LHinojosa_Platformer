@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -14,6 +15,8 @@ public class PlayerController : MonoBehaviour
     private bool _isJumpPressed;
     private bool _isGrounded;
     public float _addVelocity;
+    private bool _jumpBuffer;
+    private float _jumpBufferTimer = 0.1f;
 
     private bool _gravityUp;
     
@@ -74,8 +77,23 @@ public class PlayerController : MonoBehaviour
         //LeftRight
         _rB.velocity = new Vector2(_addVelocity, _rB.velocity.y);//Reset Velocity
         _rB.AddForce(Vector2.right * (_xInput * _ps._moveSpeed), ForceMode2D.Impulse);
+
+        bool _jumpAvailable = IsJumpAvailable();
         
-        //Jump
+        if (_isJumpPressed)
+        {
+            if (_jumpAvailable)
+                Jump();
+            else
+            {
+                _jumpBuffer = true;
+                StartCoroutine(JumpBufferTimer());
+            }
+        }
+    }
+
+    bool IsJumpAvailable()
+    {
         RaycastHit2D hit;
         if (_gravityUp)
         {
@@ -105,14 +123,34 @@ public class PlayerController : MonoBehaviour
         else
             _isGrounded = false;
 
-        if (_isGrounded && _isJumpPressed)
+        if (!_isGrounded)
+            return false;
+        else
         {
-            _isJumpPressed = false;
-            
-            if (_gravityUp)
-                _rB.velocity = new Vector2(_rB.velocity.x, -_ps._jumpSpeed);
-            else
-                _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
+            //Coyote time?
+            if (_jumpBuffer)
+            {
+                Jump();
+                _jumpBuffer = false;
+            }
+
+            return true;
         }
+    }
+
+    void Jump()
+    {
+        if (_gravityUp)
+            _rB.velocity = new Vector2(_rB.velocity.x, -_ps._jumpSpeed);
+        else
+            _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
+
+        _isJumpPressed = false;
+    }
+
+    private IEnumerator JumpBufferTimer()
+    {
+        yield return new WaitForSeconds(_jumpBufferTimer);
+        _jumpBuffer = false;
     }
 }

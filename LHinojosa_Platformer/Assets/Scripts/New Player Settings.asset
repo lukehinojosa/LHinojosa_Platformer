@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _moveSpeed: 10
   _jumpSpeed: 20
-  _raycastDistance: 0.2
+  _raycastDistance: 0.05
