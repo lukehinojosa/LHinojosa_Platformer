@@ -16,10 +16,11 @@ public class PlayerController : MonoBehaviour
     public float _addVelocity;
     private bool _jumpAvailable;
     private bool _jumpBuffer;
-    private float _jumpBufferTimer = 0.0f;
+    private float _inputBufferTimer = 0.2f;
     private float _coyoteTime = 0.1f;
     private bool _coyoteCoroutineRunning;
     private float _initialGravity;
+    private bool _doJump;
 
     private bool _gravityUp;
     
@@ -84,13 +85,21 @@ public class PlayerController : MonoBehaviour
         
         if (_isJumpPressed)
         {
+            _isJumpPressed = false;
+            
             if (_jumpAvailable)
-                Jump();
+                _doJump = true;
             else
             {
                 _jumpBuffer = true;
                 StartCoroutine(JumpBufferTimer());
             }
+        }
+
+        if (_doJump)
+        {
+            Jump();
+            _doJump = false;
         }
     }
 
@@ -148,7 +157,7 @@ public class PlayerController : MonoBehaviour
             
             if (_jumpBuffer)
             {
-                Jump();
+                _doJump = true;
                 _jumpBuffer = false;
             }
         }
@@ -160,8 +169,7 @@ public class PlayerController : MonoBehaviour
             _rB.velocity = new Vector2(_rB.velocity.x, -_ps._jumpSpeed);
         else
             _rB.velocity = new Vector2(_rB.velocity.x, _ps._jumpSpeed);
-
-        _isJumpPressed = false;
+        
         _jumpAvailable = false;
     }
     
@@ -175,7 +183,7 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator JumpBufferTimer()
     {
-        yield return new WaitForSeconds(_jumpBufferTimer);
+        yield return new WaitForSeconds(_inputBufferTimer);
         _jumpBuffer = false;
     }
 }
