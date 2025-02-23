@@ -81,10 +81,10 @@ public class PlayerController : MonoBehaviour
         {
             _rB.gravityScale = -Mathf.Abs(_rB.gravityScale);
             
-            Vector2 topLocalRayPos = new Vector2(transform.position.x, _col.bounds.max.y);
+            Vector2 topLocalRayPos = new Vector2(transform.position.x, _col.bounds.max.y + 0.01f);
             
             hit = Physics2D.Raycast(topLocalRayPos, Vector2.up, _ps._raycastDistance,
-                LayerMask.GetMask("Ground"));
+                LayerMask.GetMask("Ground", "Player"));
             
             Debug.DrawRay(topLocalRayPos, Vector2.up * _ps._raycastDistance, Color.red);
         }
@@ -92,10 +92,10 @@ public class PlayerController : MonoBehaviour
         {
             _rB.gravityScale = Mathf.Abs(_rB.gravityScale);
             
-            Vector2 btmLocalRayPos = new Vector2(transform.position.x, _col.bounds.min.y);
+            Vector2 btmLocalRayPos = new Vector2(transform.position.x, _col.bounds.min.y - 0.01f);
             
             hit = Physics2D.Raycast(btmLocalRayPos, Vector2.down, _ps._raycastDistance,
-                LayerMask.GetMask("Ground"));
+                LayerMask.GetMask("Ground", "Player"));
             
             Debug.DrawRay(btmLocalRayPos, Vector2.down * _ps._raycastDistance, Color.red);
         }
