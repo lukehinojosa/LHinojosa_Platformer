@@ -12,15 +12,18 @@ public class PlayerController : MonoBehaviour
     private Bounds _bounds;
     private float _xInput;
     private bool _isJumpPressed;
+    private bool _isGravityPressed;
     private bool _isGrounded;
     public float _addVelocity;
     private bool _jumpAvailable;
     private bool _jumpBuffer;
+    private bool _gravityBuffer;
     private float _inputBufferTimer = 0.2f;
     private float _coyoteTime = 0.1f;
     private bool _coyoteCoroutineRunning;
     private float _initialGravity;
     private bool _doJump;
+    private bool _doFlipGravity;
 
     private bool _gravityUp;
     
@@ -54,19 +57,10 @@ public class PlayerController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.UpArrow))
             _isJumpPressed = true;
 
-        if (_isGrounded)
+        //Flips Gravity related stuff.
+        if (Input.GetKeyDown(KeyCode.Space))
         {
-            //Flips Gravity related stuff.
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                _gravityUp = !_gravityUp;
-                _sR.flipY = _gravityUp;
-                _col.offset = new Vector2(0, _col.offset.y * -1);
-                
-                StopCoroutine(CoyoteTimer());
-                _coyoteCoroutineRunning = false;
-                _jumpAvailable = false;
-            }
+            _isGravityPressed = true;
         }
         
         if ((!_gravityUp && _rB.velocity.y > 0.1f) || (_gravityUp && _rB.velocity.y < -0.1f))
@@ -101,6 +95,31 @@ public class PlayerController : MonoBehaviour
             Jump();
             _doJump = false;
         }
+        
+        if (_isGravityPressed)
+        {
+            _isGravityPressed = false;
+            
+            _gravityBuffer = true;
+            StartCoroutine(GravityBufferTimer());
+        }
+
+        if (_doFlipGravity)
+        {
+            FlipGravity();
+            _doFlipGravity = false;
+        }
+    }
+
+    void FlipGravity()
+    {
+        _gravityUp = !_gravityUp;
+        _sR.flipY = _gravityUp;
+        _col.offset = new Vector2(0, _col.offset.y * -1);
+                
+        StopCoroutine(CoyoteTimer());
+        _coyoteCoroutineRunning = false;
+        _jumpAvailable = false;
     }
 
     void IsJumpAvailable()
@@ -160,6 +179,12 @@ public class PlayerController : MonoBehaviour
                 _doJump = true;
                 _jumpBuffer = false;
             }
+            
+            if (_gravityBuffer)
+            {
+                _doFlipGravity = true;
+                _gravityBuffer = false;
+            }
         }
     }
 
@@ -185,5 +210,11 @@ public class PlayerController : MonoBehaviour
     {
         yield return new WaitForSeconds(_inputBufferTimer);
         _jumpBuffer = false;
+    }
+    
+    private IEnumerator GravityBufferTimer()
+    {
+        yield return new WaitForSeconds(_inputBufferTimer);
+        _gravityBuffer = false;
     }
 }
