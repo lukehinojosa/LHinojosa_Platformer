@@ -16,7 +16,6 @@ public class Times2Vertical : MonoBehaviour
         if (!_triggered && other.CompareTag("Player"))
         {
             _triggered = true;
-            
             PlayerController pc = other.GetComponent<PlayerController>();
             if (pc.GetGravityUp())
                 Instantiate(other.gameObject, other.transform.position - _duplicateOffset, other.transform.rotation);

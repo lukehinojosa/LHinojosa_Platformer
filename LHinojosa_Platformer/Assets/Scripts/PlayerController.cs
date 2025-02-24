@@ -4,12 +4,12 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
 {
+    //Variables need to be public so Instantiate picks them up
     public PlayerSettings _ps;
     
     private Rigidbody2D _rB;
     private SpriteRenderer _sR;
     private BoxCollider2D _col;
-    private Bounds _bounds;
     private float _xInput;
     private bool _isJumpPressed;
     private bool _isGravityPressed;
@@ -201,7 +201,7 @@ public class PlayerController : MonoBehaviour
         _jumpAvailable = false;
     }
     
-    private IEnumerator CoyoteTimer()
+    public IEnumerator CoyoteTimer()
     {
         _coyoteCoroutineRunning = true;
         yield return new WaitForSeconds(_coyoteTime);
@@ -209,13 +209,13 @@ public class PlayerController : MonoBehaviour
         _coyoteCoroutineRunning = false;
     }
 
-    private IEnumerator JumpBufferTimer()
+    public IEnumerator JumpBufferTimer()
     {
         yield return new WaitForSeconds(_inputBufferTimer);
         _jumpBuffer = false;
     }
     
-    private IEnumerator GravityBufferTimer()
+    public IEnumerator GravityBufferTimer()
     {
         yield return new WaitForSeconds(_inputBufferTimer);
         _gravityBuffer = false;
